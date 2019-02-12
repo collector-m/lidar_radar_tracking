@@ -13,14 +13,18 @@ SOURCES += main.cpp \
     src/object.cpp \
     src/objectsimulator.cpp \
     visualizer.cpp \
-    src/visualizer.cpp
+    src/visualizer.cpp \
+    inc/tracker.cpp \
+    src/tracker.cpp
 
 HEADERS += \
     inc/global.h \
     inc/object.h \
     inc/objectsimulator.h \
     visualizer.h \
-    inc/visualizer.h
+    inc/visualizer.h \
+    inc/tracker.h \
+    inc/utils.h
 
 DISTFILES += \
     CMakeLists.txt

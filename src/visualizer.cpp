@@ -51,17 +51,16 @@ void Visualizer::Init()
     local_map = cv::Mat::zeros(map_range_length / map_scale, map_range_width*2 / map_scale, CV_8UC3);
 }
 
-void Visualizer::DrawGT(const std::vector<BoxObject> &v)
+void Visualizer::DrawGT(const std::vector<BoxObject> &v, cv::Scalar color)
 {
     for (auto obj : v)
     {
-        draw_obj(local_map, obj, cv::Scalar(0,255,0));
+        draw_obj(local_map, obj, color);
     }
 }
 
-void Visualizer::DrawRadarObjs(const std::vector<RadarObject> &v)
+void Visualizer::DrawRadarObjs(const std::vector<RadarObject> &v, cv::Scalar color)
 {
-    cv::Scalar color(0,0,255);
     for (auto obj : v)
     {
         float rx = obj.r * cos(obj.theta);

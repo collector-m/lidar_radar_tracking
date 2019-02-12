@@ -14,11 +14,11 @@ const float max_velocity = 30;
 const float max_range_x = 100;
 const float max_range_y = 50;
 
-const float radar_loss_rate = 0.2;
+const float radar_loss_rate = 0;  // debug
 const float radar_range_noise_bias_rate = 0.05;
 const float radar_range_noise_cov = 0.5;
 const float radar_theta_noise_bias_rate = 0;
-const float radar_theta_noise_cov = 2 * pi / 180;
+const float radar_theta_noise_cov = 1 * pi / 180;
 const float radar_velocity_noise_bias_rate = 0;
 const float radar_velocity_noise_cov = 2;
 

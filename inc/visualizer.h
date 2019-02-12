@@ -14,8 +14,8 @@ public:
     Visualizer();
 
     void Init();
-    void DrawGT(const std::vector<BoxObject> &v);
-    void DrawRadarObjs(const std::vector<RadarObject> &v);
+    void DrawGT(const std::vector<BoxObject> &v, cv::Scalar color);
+    void DrawRadarObjs(const std::vector<RadarObject> &v, cv::Scalar color);
     void ShowMap() const;
 
 private:

@@ -219,8 +219,8 @@ void ObjectSimulator::GenerateRadarObsv(std::vector<BoxObject> &gt, std::vector<
         robj.theta += theta_noise(e);
 
         sign = (r_noise_sign(e) < 0) * 2 - 1;  // -1 or 1
-        std::normal_distribution<double> velocity_noise(sign*radar_velocity_noise_bias_rate*robj.vt, radar_velocity_noise_cov);
-        robj.vt += velocity_noise(e);
+        std::normal_distribution<double> vt_noise(sign*radar_velocity_noise_bias_rate*robj.vt, radar_velocity_noise_cov);
+        robj.vt += vt_noise(e);
 
         radarobjs.push_back(robj);
     }
