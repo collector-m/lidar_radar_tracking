@@ -16,19 +16,33 @@ const float velocity_accuracy = 2;
 const float velocity_lateral_xinit = 0;
 const float velocity_lateral_pinit = 30;
 
+const int max_loss_cnt = 5;
+
+struct TrackCount
+{
+    int loss_cnt;
+    int exist_cnt;
+};
+
 class Tracker
 {
 public:
     Tracker();
 
-    void init_obj(const RadarObject &obj);
-    void match_nn(std::vector<RadarObject> &src);
-    void ekf(std::vector<RadarObject> &src,
+    void InitTrack(const RadarObject &obj);
+    void RemoveTrack(int index);
+    void Predict();
+    void Update(std::vector<RadarObject> &src);
+    void MatchNN(std::vector<RadarObject> &src);
+    void EKF(std::vector<RadarObject> &src,
              std::vector<BoxObject> &dst);
+    void PrintMeasurements(std::vector<RadarObject> &src);
+    void PrintOutputTracks(std::vector<BoxObject> &dst);
 
 private:
     std::vector<Eigen::VectorXf> X;  // rx ry vx vy
     std::vector<Eigen::MatrixXf> P;
+    std::vector<std::pair<uint64_t, TrackCount>> track_info;
 
     uint64_t id_cnt;
 

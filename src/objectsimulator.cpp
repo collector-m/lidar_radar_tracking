@@ -14,6 +14,7 @@ static void erase_obj(std::vector<BoxObject> &v, uint64_t id)
 ObjectSimulator::ObjectSimulator()
 {
     id_cnt = 0;
+    id_cnt_radar = 0;
 }
 
 void ObjectSimulator::GenerateGT(std::vector<BoxObject> &v)
@@ -97,6 +98,9 @@ void ObjectSimulator::GenerateGT(std::vector<BoxObject> &v)
             obj.vx = ((u_double(e) < 0.5) * 2 - 1) * (u_double(e) * 20 + 10);  // 10~30 m/s or -10~-30 m/s
             obj.vy = u_double(e) * -5;  // 0~-5 m/s
         }
+
+        obj.rx_cov = obj.ry_cov = 0;
+        obj.vx_cov = obj.vy_cov = 0;
 
         Eigen::Vector3f v_be(1,0,0);
         Eigen::Vector3f v_en(obj.vx, obj.vy, 0);
@@ -200,7 +204,8 @@ void ObjectSimulator::GenerateRadarObsv(std::vector<BoxObject> &gt, std::vector<
         if (radar_loss(e) < radar_loss_rate)  continue;
 
         RadarObject robj;
-        robj.id = 0;  // invalid
+        robj.id = id_cnt_radar++;
+
         cv::Point2f ref_position = find_nearest_point(obj);
 //        cv::Point2f ref_position(obj.rx, obj.ry);
         robj.r = sqrt(pow(ref_position.x, 2) + pow(ref_position.y, 2));

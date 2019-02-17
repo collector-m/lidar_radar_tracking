@@ -18,12 +18,12 @@ int main()
         sim.GenerateGT(gt);
         sim.GenerateRadarObsv(gt, radarobjs);
 
-        radar_tracker.ekf(radarobjs, filtered_radarobjs);
+        radar_tracker.EKF(radarobjs, filtered_radarobjs);
 
         viser.Init();
         viser.DrawGT(gt, cv::Scalar(0,255,0));
         viser.DrawRadarObjs(radarobjs, cv::Scalar(0,0,255));
-        viser.DrawGT(filtered_radarobjs, cv::Scalar(255,255,0));
+        viser.DrawFT(filtered_radarobjs, cv::Scalar(255,255,0));
 
         viser.ShowMap();
         usleep(50000);

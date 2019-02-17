@@ -66,7 +66,31 @@ void Visualizer::DrawRadarObjs(const std::vector<RadarObject> &v, cv::Scalar col
         float rx = obj.r * cos(obj.theta);
         float ry = obj.r * sin(obj.theta);
         cv::circle(local_map, map2pixel(rx, ry), 2, color, 2);
+//        ShowId(obj);
     }
+}
+
+void Visualizer::DrawFT(const std::vector<BoxObject> &v, cv::Scalar color)
+{
+    for (auto obj : v)
+    {
+        draw_obj(local_map, obj, color);
+        ShowId(obj);
+    }
+}
+
+void Visualizer::ShowId(const BoxObject &obj)
+{
+    cv::putText(local_map, std::to_string(obj.id), map2pixel(obj.rx, obj.ry),
+                cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(255,255,255), 2);
+}
+
+void Visualizer::ShowId(const RadarObject &obj)
+{
+    float rx = obj.r * cos(obj.theta);
+    float ry = obj.r * sin(obj.theta);
+    cv::putText(local_map, std::to_string(obj.id), map2pixel(rx, ry),
+                cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(255,255,255), 2);
 }
 
 void Visualizer::ShowMap() const

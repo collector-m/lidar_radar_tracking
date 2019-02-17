@@ -15,7 +15,8 @@ SOURCES += main.cpp \
     visualizer.cpp \
     src/visualizer.cpp \
     inc/tracker.cpp \
-    src/tracker.cpp
+    src/tracker.cpp \
+    src/utils.cpp
 
 HEADERS += \
     inc/global.h \

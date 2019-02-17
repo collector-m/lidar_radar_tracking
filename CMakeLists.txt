@@ -20,6 +20,7 @@ add_executable(
     src/objectsimulator.cpp
     src/visualizer.cpp
     src/tracker.cpp
+    src/utils.cpp
 )
 
 target_link_libraries(
