@@ -32,6 +32,9 @@ void Tracker::PrintOutputTracks(std::vector<BoxObject> &dst)
     printf("[OutputInfo: num %d]\n", X.size());
     for (int i=0; i<X.size(); ++i)
     {
+        if (track_info[i].second.exist_cnt < min_exist_cnt)  continue;
+        if (!IsConverged(i))  continue;
+
         BoxObject obj;
         obj.id = track_info[i].first;
 
@@ -40,6 +43,11 @@ void Tracker::PrintOutputTracks(std::vector<BoxObject> &dst)
         obj.vx = X[i](2);
         obj.vy = X[i](3);
         obj.ax = obj.ay = 0;
+
+        obj.rx_cov = P[i](0,0);
+        obj.ry_cov = P[i](1,1);
+        obj.vx_cov = P[i](2,2);
+        obj.vy_cov = P[i](3,3);
 
         obj.corner[0] = cv::Point2f(box_object_len/2, -box_object_wid/2);
         obj.corner[1] = cv::Point2f(-box_object_len/2, -box_object_wid/2);
@@ -110,8 +118,17 @@ void Tracker::MatchNN(std::vector<RadarObject> &src)
 //                && fabs(r*sin(theta) - ry) < ry * 0.3
 //                && fabs(vt - vt_) < 10)
 
+            printf("[MatchNN] diff btw src %d -> prev %d: diff_r %f, diff_theta %f, diff_vt %f\n",
+                   i, j, fabs(r - r_), fabs(theta - theta_), fabs(vt - vt_));
+
+            float last_rx = rx - vx * ts;
+            float last_ry = ry - vy * ts;
+            float auto_theta_thres = (fabs(atan2(ry, rx) - atan2(last_ry, last_rx)) + 5) * 180 / pi;
+            auto_theta_thres = std::min(auto_theta_thres, (float)10.0);
+//            printf("debug_theta_threshold(deg): %f, gid %ld, rx %f, ry %f\n", auto_theta_thres, track_info[j].first, rx, ry);
+
             if (fabs(r - r_) < r * 0.3
-                && fabs(theta - theta_) < 5 * pi / 180
+                && fabs(theta - theta_) < auto_theta_thres * pi / 180
                 && fabs(vt - vt_) < 10)
             {
                 float tmp_cost = pow((r-r_)/r_, 2) + pow((theta-theta_)/theta_, 2) + pow((vt-vt_)/vt_, 2);
@@ -136,10 +153,6 @@ void Tracker::MatchNN(std::vector<RadarObject> &src)
                 prev_matched[match_id] = 1;
                 src_matched[i] = 1;
 
-                if (track_info[match_id].first == 0)
-                {
-                    track_info[match_id].first = id_cnt++;
-                }
                 track_info[match_id].second.loss_cnt = 0;
                 track_info[match_id].second.exist_cnt++;
 
@@ -153,8 +166,11 @@ void Tracker::MatchNN(std::vector<RadarObject> &src)
                 Eigen::MatrixXf P_copy(P[match_id]);
                 X.push_back(X_copy);
                 P.push_back(P_copy);
-                std::pair<uint64_t, TrackCount> track_info_copy(track_info[match_id]);
-                track_info_copy.first = id_cnt++;
+
+//                std::pair<uint64_t, TrackCount> track_info_copy(track_info[match_id]);
+//                track_info_copy.first = id_cnt++;
+
+                std::pair<uint64_t, TrackCount> track_info_copy(id_cnt++, {0,1});
                 track_info.push_back(track_info_copy);
 
                 assert(X.size() == P.size());
@@ -181,7 +197,7 @@ void Tracker::MatchNN(std::vector<RadarObject> &src)
         {
             unmatched_track_num++;
             track_info[i].second.loss_cnt++;
-            track_info[i].second.exist_cnt = 0;
+//            track_info[i].second.exist_cnt = 0;
 
             float rx = X[i](0);
             float ry = X[i](1);
@@ -190,10 +206,10 @@ void Tracker::MatchNN(std::vector<RadarObject> &src)
             float r_ = sqrt(rx * rx + ry * ry);
             float theta_ = atan2(ry, rx);
             float vt_ = (vx * rx + vy * ry) / r_;
-//            printf("[MatchNN] prev not matched %d: r %f, theta %f, vt %f\n",
-//                   i, r_, theta_, vt_);
-            printf("[MatchNN] prev not matched %d: rx %f, ry %f, vx %f, vy %f\n",
-                   i, rx, ry, vx, vy);
+            printf("[MatchNN] prev not matched %d: r %f, theta %f, vt %f\n",
+                   i, r_, theta_, vt_);
+//            printf("[MatchNN] prev not matched %d: rx %f, ry %f, vx %f, vy %f\n",
+//                   i, rx, ry, vx, vy);
         }
     }
     int unmatched_obj_num = 0;
@@ -230,7 +246,7 @@ void Tracker::InitTrack(const RadarObject &obj)
     tmpP(3,3) = pow(velocity_lateral_pinit, 2);
     P.push_back(tmpP);
 
-    std::pair<uint64_t, TrackCount> initial_info(0, {0,1});
+    std::pair<uint64_t, TrackCount> initial_info(id_cnt++, {0,1});
     track_info.push_back(initial_info);
 
     assert(X.size() == P.size());
@@ -320,7 +336,8 @@ void Tracker::Update(std::vector<RadarObject> &src)
     {
         if (!prev_matched[i])
         {
-            if (track_info[i].second.loss_cnt > max_loss_cnt)
+            if (track_info[i].second.loss_cnt > max_loss_cnt
+                || !IsConverged(i))
             {
                 RemoveTrack(i);
             }
@@ -361,4 +378,21 @@ void Tracker::EKF(std::vector<RadarObject> &src,
     }
 //    printf("[EKF][summary] X size %d, P size %d, matched_pair size %d, prev_matched size %d, src_matched size %d, track_info size %d\n",
 //           X.size(), P.size(), matched_pair.size(), prev_matched.size(), src_matched.size(), track_info.size());
+}
+
+bool Tracker::IsConverged(int track_index)
+{
+    bool converged = 0;
+    float rx_cov = P[track_index](0,0);
+    float ry_cov = P[track_index](1,1);
+    float vx_cov = P[track_index](2,2);
+    float vy_cov = P[track_index](3,3);
+    if (rx_cov < 25
+        && ry_cov < 25
+        && vx_cov < 5
+        && vy_cov < 5)
+    {
+        converged = 1;
+    }
+    return converged;
 }

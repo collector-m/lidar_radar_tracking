@@ -16,7 +16,8 @@ const float velocity_accuracy = 2;
 const float velocity_lateral_xinit = 0;
 const float velocity_lateral_pinit = 30;
 
-const int max_loss_cnt = 5;
+const int max_loss_cnt = 3;
+const int min_exist_cnt = 5;
 
 struct TrackCount
 {
@@ -38,6 +39,7 @@ public:
              std::vector<BoxObject> &dst);
     void PrintMeasurements(std::vector<RadarObject> &src);
     void PrintOutputTracks(std::vector<BoxObject> &dst);
+    bool IsConverged(int track_index);
 
 private:
     std::vector<Eigen::VectorXf> X;  // rx ry vx vy

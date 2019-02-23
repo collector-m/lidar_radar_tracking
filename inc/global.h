@@ -7,6 +7,7 @@
 #include <climits>
 #include <vector>
 #include <random>
+#include <cmath>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
