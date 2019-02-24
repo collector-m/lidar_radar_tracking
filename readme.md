@@ -1,8 +1,6 @@
 Kalman Tracking
 ==================
-This repository is a tracking simulation system using kalman filter, now including a groundtruth simulator and a radar measurements simulator. 
-
-Lidar measurements simulator will be supported soon.
+The repository is a tracking simulation system using kalman filter, including a groundtruth simulator and a radar measurements simulator. Lidar measurements simulator and sensor fusion will be supported soon.
 
 Pre-requisites
 --------------
