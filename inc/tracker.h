@@ -8,7 +8,7 @@
 const float ts = 0.05;
 const float max_acc = 2;
 const float range_accuracy_rate = 0.05;
-const float range_accuracy = 0.5;
+const float range_accuracy = 1;
 const float theta_accuracy_rate = 0;
 const float theta_accuracy = 1 * pi / 180;
 const float velocity_accuracy_rate = 0;

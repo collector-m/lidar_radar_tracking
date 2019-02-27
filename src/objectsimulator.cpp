@@ -230,3 +230,69 @@ void ObjectSimulator::GenerateRadarObsv(std::vector<BoxObject> &gt, std::vector<
         radarobjs.push_back(robj);
     }
 }
+
+static cv::Point lidarmap2pixel(cv::Point2f pt)
+{
+    float x = pt.x, y = pt.y;
+    return cv::Point(y / 0.05 + 50 / 0.05, 50 / 0.05 - x / 0.05);
+}
+
+void ObjectSimulator::GenerateLidarPts(std::vector<BoxObject> &gt, std::vector<LidarPoint> &lidarpts)
+{
+    lidarpts.clear();
+
+    cv::Mat lidarmap = cv::Mat::zeros(50 / 0.05, 50 * 2 / 0.05, CV_8UC1);
+    for (auto obj : gt)
+    {
+        std::vector<cv::Point2f> rotated_corner;
+        for (auto pt : obj.corner)
+        {
+            cv::Point2f newpt;
+            Eigen::Vector3f vec(pt.x, pt.y, 0);
+            vec = obj.yaw * vec;  // rotate by z axis
+            newpt.x = vec(0) + obj.rx;  // offset
+            newpt.y = vec(1) + obj.ry;
+            rotated_corner.push_back(newpt);
+        }
+
+        cv::line(lidarmap, lidarmap2pixel(rotated_corner[0]), lidarmap2pixel(rotated_corner[1]), 100, 2);
+        cv::line(lidarmap, lidarmap2pixel(rotated_corner[0]), lidarmap2pixel(rotated_corner[3]), 100, 2);
+        cv::line(lidarmap, lidarmap2pixel(rotated_corner[2]), lidarmap2pixel(rotated_corner[1]), 100, 2);
+        cv::line(lidarmap, lidarmap2pixel(rotated_corner[2]), lidarmap2pixel(rotated_corner[3]), 100, 2);
+    }
+
+    for (float theta = 0; theta <= 180; theta += 1)
+    {
+        for (float range = 0; range <= 50; range += 0.02)
+        {
+            float rx = range * sin(theta * pi / 180.0);
+            float ry = range * cos(theta * pi / 180.0);
+            if (lidarmap.at<uchar>(lidarmap2pixel(cv::Point2f(rx, ry))))
+            {
+                lidarmap.at<uchar>(lidarmap2pixel(cv::Point2f(rx, ry))) = 255;
+
+                // add noise
+                std::random_device e;
+                std::normal_distribution<double> r_noise_sign(0,1);
+
+                for (int i=0; i<8; ++i)
+                {
+                    float noised_rx = rx, noised_ry = ry;
+                    int sign = (r_noise_sign(e) < 0) * 2 - 1;  // -1 or 1
+                    std::normal_distribution<double> rx_noise(sign*lidar_range_noise_bias_rate*rx, lidar_range_noise_cov);
+                    noised_rx += rx_noise(e);
+                    sign = (r_noise_sign(e) < 0) * 2 - 1;  // -1 or 1
+                    std::normal_distribution<double> ry_noise(sign*lidar_range_noise_bias_rate*ry, lidar_range_noise_cov);
+                    noised_ry += ry_noise(e);
+
+                    lidarpts.push_back({noised_rx, noised_ry});
+                }
+                break;
+            }
+        }
+    }
+
+//    cv::namedWindow("lidardebuger");
+//    cv::imshow("lidardebuger", lidarmap);
+//    cv::waitKey(5);
+}

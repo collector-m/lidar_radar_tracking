@@ -70,6 +70,16 @@ void Visualizer::DrawRadarObjs(const std::vector<RadarObject> &v, cv::Scalar col
     }
 }
 
+void Visualizer::DrawLidarPts(const std::vector<LidarPoint> &v, cv::Scalar color)
+{
+    for (auto obj : v)
+    {
+        float rx = obj.rx;
+        float ry = obj.ry;
+        cv::circle(local_map, map2pixel(rx, ry), 1, color, 1);
+    }
+}
+
 void Visualizer::DrawFT(const std::vector<BoxObject> &v, cv::Scalar color)
 {
     for (auto obj : v)

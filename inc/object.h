@@ -52,4 +52,10 @@ public:
     float vt;
 };
 
+struct LidarPoint
+{
+    float rx;
+    float ry;
+};
+
 #endif // OBJECT_H
