@@ -1,7 +1,6 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-
 #include <iostream>
 #include <cstdint>
 #include <climits>
@@ -11,6 +10,7 @@
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/opencv.hpp>
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense>
 

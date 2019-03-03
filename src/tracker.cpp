@@ -20,16 +20,17 @@ Tracker::Tracker()
 
 void Tracker::PrintMeasurements(std::vector<RadarObject> &src)
 {
-    printf("[MeasurementInfo: num %d]\n", src.size());
+    printf("[MeasurementInfo: num %zu]\n", src.size());
     for (auto &obj : src)
     {
-        obj.PrintObjInfo();
+        printf("[id: %ld][range: %f][theta(deg): %f][velocity: %f]\n",
+               obj.id, obj.r, rad2deg(obj.theta), obj.vt);
     }
 }
 
 void Tracker::PrintOutputTracks(std::vector<BoxObject> &dst)
 {
-    printf("[OutputInfo: num %d]\n", X.size());
+    printf("[OutputInfo: num %zu]\n", X.size());
     for (int i=0; i<X.size(); ++i)
     {
         if (track_info[i].second.exist_cnt < min_exist_cnt)  continue;
@@ -226,7 +227,7 @@ void Tracker::MatchNN(std::vector<RadarObject> &src)
         }
     }
 
-    printf("[MatchNN][matched_track: %d][unmatched_track: %d][unmatched_obj: %d]\n",
+    printf("[MatchNN][matched_track: %zu][unmatched_track: %d][unmatched_obj: %d]\n",
            matched_pair.size(), unmatched_track_num, unmatched_obj_num);
 }
 

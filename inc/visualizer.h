@@ -21,6 +21,7 @@ public:
     void ShowId(const BoxObject &obj);
     void ShowId(const RadarObject &obj);
     void ShowMap() const;
+    cv::Mat GetMap() const  {return local_map;}
 
 private:
     cv::Mat local_map;

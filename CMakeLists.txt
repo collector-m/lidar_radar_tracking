@@ -16,7 +16,6 @@ add_executable(
     tracker
 
     main.cpp
-    src/object.cpp
     src/objectsimulator.cpp
     src/visualizer.cpp
     src/tracker.cpp

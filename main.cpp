@@ -2,6 +2,7 @@
 #include "inc/objectsimulator.h"
 #include "inc/visualizer.h"
 #include "inc/tracker.h"
+#include "inc/pointcloudhelper.h"
 
 int main()
 {
@@ -17,19 +18,19 @@ int main()
     while (frame_cnt++ < 60 / update_period)
     {
         sim.GenerateGT(gt);
-//        sim.GenerateRadarObsv(gt, radarobjs);
+        sim.GenerateRadarObsv(gt, radarobjs);
         sim.GenerateLidarPts(gt, lidarpts);
+        pointcloud_labelling(lidarpts);
 
-//        radar_tracker.EKF(radarobjs, filtered_radarobjs);
+       radar_tracker.EKF(radarobjs, filtered_radarobjs);
 
         viser.Init();
         viser.DrawGT(gt, cv::Scalar(0,255,0));
-//        viser.DrawRadarObjs(radarobjs, cv::Scalar(0,0,255));
-        viser.DrawLidarPts(lidarpts, cv::Scalar(0,255,255));
-//        viser.DrawFT(filtered_radarobjs, cv::Scalar(255,255,0));
+        viser.DrawRadarObjs(radarobjs, cv::Scalar(0,0,255));
+        // viser.DrawLidarPts(lidarpts, cv::Scalar(0,255,255));
+        viser.DrawFT(filtered_radarobjs, cv::Scalar(255,255,0));
 
         viser.ShowMap();
-
 
         usleep(50000);
     }

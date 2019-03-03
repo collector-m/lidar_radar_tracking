@@ -234,14 +234,16 @@ void ObjectSimulator::GenerateRadarObsv(std::vector<BoxObject> &gt, std::vector<
 static cv::Point lidarmap2pixel(cv::Point2f pt)
 {
     float x = pt.x, y = pt.y;
-    return cv::Point(y / 0.05 + 50 / 0.05, 50 / 0.05 - x / 0.05);
+    return cv::Point(y / lidar_range_acc + lidar_max_range / lidar_range_acc, 
+                     lidar_max_range / lidar_range_acc - x / lidar_range_acc);
 }
 
 void ObjectSimulator::GenerateLidarPts(std::vector<BoxObject> &gt, std::vector<LidarPoint> &lidarpts)
 {
     lidarpts.clear();
 
-    cv::Mat lidarmap = cv::Mat::zeros(50 / 0.05, 50 * 2 / 0.05, CV_8UC1);
+    cv::Mat lidarmap = cv::Mat::zeros(lidar_max_range / lidar_range_acc, 
+                                      lidar_max_range * 2 / lidar_range_acc, CV_8UC1);
     for (auto obj : gt)
     {
         std::vector<cv::Point2f> rotated_corner;
@@ -261,9 +263,9 @@ void ObjectSimulator::GenerateLidarPts(std::vector<BoxObject> &gt, std::vector<L
         cv::line(lidarmap, lidarmap2pixel(rotated_corner[2]), lidarmap2pixel(rotated_corner[3]), 100, 2);
     }
 
-    for (float theta = 0; theta <= 180; theta += 1)
+    for (float theta = 0; theta <= 180; theta += lidar_theta_acc)
     {
-        for (float range = 0; range <= 50; range += 0.02)
+        for (float range = 0; range <= lidar_max_range; range += lidar_range_acc)
         {
             float rx = range * sin(theta * pi / 180.0);
             float ry = range * cos(theta * pi / 180.0);
@@ -275,7 +277,7 @@ void ObjectSimulator::GenerateLidarPts(std::vector<BoxObject> &gt, std::vector<L
                 std::random_device e;
                 std::normal_distribution<double> r_noise_sign(0,1);
 
-                for (int i=0; i<8; ++i)
+                for (int i=0; i<lidar_line_num; ++i)
                 {
                     float noised_rx = rx, noised_ry = ry;
                     int sign = (r_noise_sign(e) < 0) * 2 - 1;  // -1 or 1

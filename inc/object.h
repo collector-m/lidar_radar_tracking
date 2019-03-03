@@ -9,22 +9,13 @@ const float box_object_wid = 1.5;
 const float box_object_len_large = 8;
 const float box_object_wid_large = 2.5;
 
-
-class Object
+struct Object
 {
-public:
-    Object();
-    virtual void PrintObjInfo(){}
-
     uint64_t id;
 };
 
-class BoxObject : public Object
+struct BoxObject : Object
 {
-public:
-    BoxObject();
-    virtual void PrintObjInfo();
-
     float rx;
     float ry;
     float vx;
@@ -41,12 +32,8 @@ public:
     Eigen::Quaternionf yaw;
 };
 
-class RadarObject : public Object
+struct RadarObject : Object
 {
-public:
-    RadarObject();
-    virtual void PrintObjInfo();
-
     float r;
     float theta;
     float vt;
