@@ -2,6 +2,7 @@
 #include "inc/objectsimulator.h"
 #include "inc/visualizer.h"
 #include "inc/tracker.h"
+#include "inc/radarhelper.h"
 #include "inc/pointcloudhelper.h"
 
 int main()
@@ -22,7 +23,8 @@ int main()
         sim.GenerateLidarPts(gt, lidarpts);
         pointcloud_labelling(lidarpts);
 
-       radar_tracker.EKF(radarobjs, filtered_radarobjs);
+        radar_tracker.EKF(radarobjs, filtered_radarobjs);
+        anchor2center(filtered_radarobjs);
 
         viser.Init();
         viser.DrawGT(gt, cv::Scalar(0,255,0));
